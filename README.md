@@ -14,7 +14,7 @@
     </li>
     <b>Incomplete</b>
     <li>
-        ⭕Utilize 1 socket per client to send all resources requested (stylesheets, js, icons, etc.) Currently spins up a new thread per request.
+        ⭕Utilize 1 thread per client to send all resources requested (stylesheets, js, icons, etc.) Currently spins up a new thread per request.
     </li>
     <li>
         ⭕Digest HTTP request and build response from request.
