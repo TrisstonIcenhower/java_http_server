@@ -1,7 +1,7 @@
 # java_http_server
 
 <h2>Purpose</h2>
-<p>The purpose of this project is to get a deeper understanding of the underlying systems of a server. The server will be built from scratch on a foundation of the TCP/IP protocol.</p>
+<p>The purpose of this project is to get a deeper understanding of the underlying systems of a web server. The server will be built from scratch on a foundation of the TCP/IP protocol.</p>
 <p>The project is a hobby project I am working on, so I am unsure how extensive the capabilities will be, but the following bulleted list are what I intent to, or have achieved. I will update it as I progress, so the goals are more of a rolling list of features than a set in stone list.</p>
 
 <h2>Goals</h2>
@@ -46,4 +46,33 @@ Buffered Reader
 Output Stream
 <code>OutputStream out = clientSocket.getOutputStream();</code>
 
-Finally, a thread is spun up to handle the client interactions. The clientSocket, BufferedReader, and the OutputStream are passed as parameters, and the main socket then returns to listen for the next connection.
+Finally, a thread <code>Thread clientThread = new ClientHandler(in, out, clientSocket);</code> is spun up to handle the client interactions. The clientSocket, BufferedReader, and the OutputStream are passed as parameters, and the main socket then returns to listen for the next connection.
+
+<h3>Client HTTP Request - ClientHandler.java</h3>
+
+Once the connection has been made and the thread has started, the HTTP request on the input stream is handled by the ClientHandler.
+
+The <code>ClientHandler</code> is a class that attempts to read the lines of data from the input stream <code>while ((line = in.readLine()) != null && !line.isEmpty())</code>. 
+
+<h3>Server HTTP Response - ClientHandler.java</h3>
+
+In its current iteration it does not actually respond based off the request, but instead uses a hardcoded path to files. This will be fixed and updated later once I have implemented it.
+
+For now, it grabs the file and converts it to a string using my <code>FileSender</code> class. This class takes a file path as a an input string, reads the file, and returns its contents as a string. <code>FileSender.fileToString(String path)</code>
+
+Once the file has been converted to a string, the header is compiled with the information from the file, and using <code>HelperFunctions.getRfc1123Format()</code> it creates a proper response header.
+
+Finally, the header and body are both converted to byte arrays, and the <code>Client Handler</code> attepts to write the data to the <code>OutputStream</code>. If successful, the thread will then close. This currently does not support <code>connection: keep-alive</code> for multiple requests, but I will attempt to fix that at a later date. 
+
+<h3>Closing Notes</h3>
+
+If you have made it this far, thank you! I hope you found this to be informative of the project thus far. If you have any comments/suggestions feel free to reach out to me at: trisstonprogramming@gmail.com, or raise an issue in this repository.
+
+This is my first time writing this in-depth documentation on a project so I would like to know how it is. Too long? Too short? Not informative enough? Too much info? 
+
+Regardless, I hope you follow along and keep up with the project. Thank you for your time. 
+<h3>Links</h3>
+
+Portfolio: https://trisstonicenhower.github.io/portfolio<br>
+Github: https://github.com/trisstonicenhower<br>
+LinkedIn: https://linkedin.com/in/trisstonicenhower
