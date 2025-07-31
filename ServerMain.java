@@ -10,19 +10,18 @@ public class ServerMain {
             System.out.println("Server started on port " + PORT);
 
             while (true) {
-            	Socket clientSocket = null;
-                try
-                {
-                	clientSocket = serverSocket.accept();
+                Socket clientSocket = null;
+                try {
+                    clientSocket = serverSocket.accept();
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     OutputStream out = clientSocket.getOutputStream();
-                    
+
                     System.out.println("Client connected");
-                    
+
                     Thread clientThread = new ClientHandler(in, out, clientSocket);
-                    
-                    clientThread.start(); 
-                    
+
+                    clientThread.start();
+
                 } catch (Exception e) {
                     System.out.println("Client error:\n" + e.getMessage());
                     clientSocket.close();

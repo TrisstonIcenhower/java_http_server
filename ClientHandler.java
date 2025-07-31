@@ -4,8 +4,6 @@ import java.util.Hashtable;
 import java.lang.Thread;
 
 public class ClientHandler extends Thread {
-	final String VIEW_PATH = "/views";
-
 	final BufferedReader in;
 	final OutputStream out;
 	final Socket soc;
@@ -33,19 +31,30 @@ public class ClientHandler extends Thread {
 		byte[] bodyBytes;
 
 		try {
-			// TODO: Digest request, customize response based on request.
+			// TODO: Make
 			HTTPRequest httpReq = new HTTPRequest(reqString.split("\n"));
-			String body = FileSender.fileToString("views/index/index.html");
-
+			String body = FileSender.getFile(httpReq.headers.get("PATH"));
+			String headers;
 			bodyBytes = body.getBytes("UTF-8");
 
-			String headers = "HTTP/1.1 200 OK\r\n" +
-					"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
-					"Connection: keep-alive\r\n" +
-					"Server: MyServer v1.0\r\n" +
-					"Content-Length: " + bodyBytes.length + "\r\n" +
-					"Content-Type: text/html\r\n" +
-					"\r\n";
+			// temp error handler for 404
+			if (body == "N/A") {
+				headers = "HTTP/1.1 404 File Not Found\r\n" +
+						"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
+						"Connection: close\r\n" +
+						"Server: MyServer v1.0\r\n" +
+						"Content-Length: " + bodyBytes.length + "\r\n" +
+						String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
+						"\r\n";
+			} else {
+				headers = "HTTP/1.1 200 OK\r\n" +
+						"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
+						"Connection: keep-alive\r\n" +
+						"Server: MyServer v1.0\r\n" +
+						"Content-Length: " + bodyBytes.length + "\r\n" +
+						String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
+						"\r\n";
+			}
 
 			headerBytes = headers.getBytes("UTF-8");
 
