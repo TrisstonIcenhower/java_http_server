@@ -4,9 +4,12 @@ import java.io.*;
 public class ServerMain {
 
     public static void main(String[] args) {
+        Integer currentThreadCount = 10;
+        Integer maxThreadCount = 30;
+        Float threadLoad = .75f;
         // TODO: Integrate server configuration
         // TODO: Create Thread pool
-        ServerConfig.configureServerProps(11);
+        ServerConfig.configureServerProps(currentThreadCount, maxThreadCount, threadLoad);
 
         final int PORT = 8080;
 

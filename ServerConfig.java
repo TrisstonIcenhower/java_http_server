@@ -2,8 +2,10 @@ public class ServerConfig {
     private static String os;
     private static char pathSeperator;
     private static Integer threadCount = 10;
+    private static Integer maxThreadCount = 30;
+    private static Float threadLoad = .75f;
 
-    public static void configureServerProps(Integer newThreadCount){
+    public static void configureServerProps(Integer newThreadCount, Integer newMaxThreadCount, Float newThreadLoad){
         os = System.getProperty("os.name");
         
         if(os.contains(("Win"))){
@@ -14,6 +16,8 @@ public class ServerConfig {
         }
 
         setThreadCount(newThreadCount);
+        setMaxThreadCount(newMaxThreadCount);
+        setThreadLoad(newThreadLoad);
     }
 
     public static String getOS(){
@@ -38,5 +42,21 @@ public class ServerConfig {
 
     public static void setPathSeperator(char newPathSeperator){
         pathSeperator = newPathSeperator;
+    }
+
+    public static Integer getMaxThreadCount(){
+        return maxThreadCount;
+    }
+
+    public static void setMaxThreadCount(Integer newMaxThreadCount){
+        maxThreadCount = newMaxThreadCount;
+    }
+
+    public static Float getThreadLoad(){
+        return threadLoad;
+    }
+
+    public static void setThreadLoad(Float newThreadLoad){
+        threadLoad = newThreadLoad;
     }
 }

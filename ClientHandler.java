@@ -4,14 +4,26 @@ import java.util.Hashtable;
 import java.lang.Thread;
 
 public class ClientHandler extends Thread {
-	final BufferedReader in;
-	final OutputStream out;
-	final Socket soc;
+	private BufferedReader in;
+	private OutputStream out;
+	private Socket soc;
 
 	ClientHandler(BufferedReader bufIn, OutputStream outStream, Socket s) {
 		this.in = bufIn;
 		this.out = outStream;
 		this.soc = s;
+	}
+
+	ClientHandler(){
+
+	}
+
+	public void assignClient(BufferedReader bufIn, OutputStream outStream, Socket s){
+		this.in = bufIn;
+		this.out = outStream;
+		this.soc = s;
+
+		run();
 	}
 
 	@Override
@@ -46,7 +58,8 @@ public class ClientHandler extends Thread {
 						"Content-Length: " + bodyBytes.length + "\r\n" +
 						String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
 						"\r\n";
-			} else {
+			} 
+			else { // TODO: Correct CSS file sending to make it send and use rather than keep in source
 				headers = "HTTP/1.1 200 OK\r\n" +
 						"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
 						"Connection: keep-alive\r\n" +
