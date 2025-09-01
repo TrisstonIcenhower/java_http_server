@@ -5,10 +5,9 @@ public class FileSender {
 	// TEMP FILE PATHS
 	// TODO: Replace with configurable static file pathing.
 	static final String INDEX = "index.html";
-	static final String VIEW_PATH = "views\\";
-	static final String STYLE_PATH = "styles\\";
-	static final String SCRIPT_PATH = "scripts\\";
-
+	static final String VIEW_PATH = "views" + ServerConfig.getPathSeperator();
+	static final String STYLE_PATH = "styles" + ServerConfig.getPathSeperator();
+	static final String SCRIPT_PATH = "scripts" + ServerConfig.getPathSeperator();
 	static public String getFile(String filePathString) {
 		return fileRouter(filePathString.replace("/", ""));
 	}
@@ -27,7 +26,6 @@ public class FileSender {
 		return fileToString(VIEW_PATH + "404.html");
 	}
 
-	// TODO: Research why css only applies once browser css source is changed.
 	static public String fileToString(String filePathString) {
 		String contents = "";
 		InputStream file;

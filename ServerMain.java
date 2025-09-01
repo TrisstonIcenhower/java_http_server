@@ -4,6 +4,10 @@ import java.io.*;
 public class ServerMain {
 
     public static void main(String[] args) {
+        // TODO: Integrate server configuration
+        // TODO: Create Thread pool
+        ServerConfig.configureServerProps(11);
+
         final int PORT = 8080;
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
