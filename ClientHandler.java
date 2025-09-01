@@ -7,7 +7,7 @@ public class ClientHandler extends Thread {
 	private BufferedReader in;
 	private OutputStream out;
 	private Socket soc;
-	private boolean isActive;
+	private boolean isActive = true;
 
 	ClientHandler(BufferedReader bufIn, OutputStream outStream, Socket s) {
 		this.in = bufIn;
@@ -33,7 +33,7 @@ public class ClientHandler extends Thread {
 		this.soc = null;
 	}
 
-	//TODO: once timeout occurs stop service
+	// TODO: once timeout occurs stop service
 	public void stopService() {
 		isActive = false;
 	}
@@ -57,12 +57,10 @@ public class ClientHandler extends Thread {
 			byte[] bodyBytes;
 
 			try {
-				// TODO: Make
 				HTTPRequest httpReq = new HTTPRequest(reqString.split("\n"));
 				String body = FileSender.getFile(httpReq.headers.get("PATH"));
 				String headers;
 				bodyBytes = body.getBytes("UTF-8");
-
 				// temp error handler for 404
 				if (body == "N/A") {
 					headers = "HTTP/1.1 404 File Not Found\r\n" +
@@ -79,7 +77,7 @@ public class ClientHandler extends Thread {
 							"Connection: keep-alive\r\n" +
 							"Server: MyServer v1.0\r\n" +
 							"Content-Length: " + bodyBytes.length + "\r\n" +
-							String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
+							String.format("Content-Type: %s\r\n", httpReq.headers.get("Accept")) +
 							"\r\n";
 				}
 
@@ -99,14 +97,14 @@ public class ClientHandler extends Thread {
 				e.printStackTrace();
 			}
 			System.out.println("Response written successfully.");
+		}
 
-			try {
-				this.in.close();
-				this.out.close();
+		try {
+			this.in.close();
+			this.out.close();
 
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
