@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
@@ -19,13 +23,20 @@ public class ThreadPool {
         this.upperThreadLoad = upperThreadLoad;
         this.numActiveThreads = 0;
         this.lowerThreadLoad = lowerThreadLoad;
+
+        initializePool();
     }
 
     public int getActiveThreadCount(){
         return this.numActiveThreads;
     }
 
-    public ClientHandler useThread(){
+    public void useThread(BufferedReader in, OutputStream out, Socket soc){
+        ClientHandler ch = grabThread();
+        ch.assignClient(in, out, soc);
+    }
+
+    public ClientHandler grabThread(){
         try{
             this.numActiveThreads++;
             return this.threadQueue.remove();
@@ -42,6 +53,7 @@ public class ThreadPool {
         try{
             ClientHandler ch = new ClientHandler();
             this.threadQueue.add(ch);
+            System.out.println("Thread Created");
         }
         catch(Error e){
             System.out.println(e.getMessage());
@@ -68,22 +80,22 @@ public class ThreadPool {
     public boolean isOverThreadLoad(){
         if(this.numActiveThreads.floatValue() / this.threadCount.floatValue() > this.upperThreadLoad && this.threadCount < this.maxThreadCount){
             this.poolOverLoad = true;
-            return true;
+            return this.poolOverLoad;
         }
         else{
             this.poolOverLoad = false;
-            return false;
+            return this.poolOverLoad;
         }
     }
 
     public boolean isUnderThreadLoad(){
         if(this.numActiveThreads.floatValue() / this.threadCount.floatValue() < this.lowerThreadLoad && this.threadCount > this.minThreadCount){
             this.poolUnderLoad = true;
-            return true;
+            return this.poolUnderLoad;
         }
         else{
             this.poolUnderLoad = false;
-            return false;
+            return this.poolUnderLoad;
         }
     }
 
@@ -95,17 +107,25 @@ public class ThreadPool {
             }
         }
         else if(isUnderThreadLoad()){
-            
+            int tempCount = this.threadCount;
             this.threadCount -= (this.threadCount) / 2;
             if(this.threadCount < this.minThreadCount){
                 this.threadCount = this.minThreadCount;
+            }
+
+            for(int i = 0; i < this.threadCount - tempCount; i++){
+                createThread();
             }
         }
     }
 
     public void initializePool(){
+        this.threadQueue = new LinkedList<>();
+
         for(int i = 0; i < this.threadCount; i++){
             createThread();
         }
+
+        System.out.println("Thread Pool Initialized");
     }
 }

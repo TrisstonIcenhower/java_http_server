@@ -3,9 +3,11 @@ public class ServerConfig {
     private static char pathSeperator;
     private static Integer threadCount = 10;
     private static Integer maxThreadCount = 30;
-    private static Float threadLoad = .75f;
+    private static Integer minThreadCount = 10;
+    private static Float upperThreadLoad = .75f;
+    private static Float lowerThreadLoad = .25f;
 
-    public static void configureServerProps(Integer newThreadCount, Integer newMaxThreadCount, Float newThreadLoad){
+    public static void configureServerProps(Integer newThreadCount, Integer newMaxThreadCount, Float newUpperThreadLoad, Float newLowerThreadLoad, Integer newMinThreadCount){
         os = System.getProperty("os.name");
         
         if(os.contains(("Win"))){
@@ -17,7 +19,9 @@ public class ServerConfig {
 
         setThreadCount(newThreadCount);
         setMaxThreadCount(newMaxThreadCount);
-        setThreadLoad(newThreadLoad);
+        setUpperThreadLoad(newUpperThreadLoad);
+        setLowerThreadLoad(newLowerThreadLoad);
+        setMinThreadCount(newMinThreadCount);
     }
 
     public static String getOS(){
@@ -52,11 +56,27 @@ public class ServerConfig {
         maxThreadCount = newMaxThreadCount;
     }
 
-    public static Float getThreadLoad(){
-        return threadLoad;
+    public static Integer getMinThreadCount(){
+        return maxThreadCount;
     }
 
-    public static void setThreadLoad(Float newThreadLoad){
-        threadLoad = newThreadLoad;
+    public static void setMinThreadCount(Integer newMaxThreadCount){
+        maxThreadCount = newMaxThreadCount;
+    }
+
+    public static Float getUpperThreadLoad(){
+        return upperThreadLoad;
+    }
+
+    public static void setUpperThreadLoad(Float newThreadLoad){
+        upperThreadLoad = newThreadLoad;
+    }
+
+    public static Float getLowerThreadLoad(){
+        return lowerThreadLoad;
+    }
+
+    public static void setLowerThreadLoad(Float newThreadLoad){
+        lowerThreadLoad = newThreadLoad;
     }
 }

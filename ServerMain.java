@@ -6,10 +6,14 @@ public class ServerMain {
     public static void main(String[] args) {
         Integer currentThreadCount = 10;
         Integer maxThreadCount = 30;
-        Float threadLoad = .75f;
+        Integer minThreadCount = 10;
+        Float upperThreadLoad = .75f;
+        Float lowerThreadLoad = .25f;
         // TODO: Integrate server configuration
         // TODO: Create Thread pool
-        ServerConfig.configureServerProps(currentThreadCount, maxThreadCount, threadLoad);
+        ServerConfig.configureServerProps(currentThreadCount, maxThreadCount, upperThreadLoad, lowerThreadLoad, minThreadCount);
+
+        ThreadPool tp = new ThreadPool(ServerConfig.getThreadCount(), ServerConfig.getMaxThreadCount(), ServerConfig.getMinThreadCount(), ServerConfig.getUpperThreadLoad(), ServerConfig.getLowerThreadLoad());
 
         final int PORT = 8080;
 
@@ -25,9 +29,7 @@ public class ServerMain {
 
                     System.out.println("Client connected");
 
-                    Thread clientThread = new ClientHandler(in, out, clientSocket);
-
-                    clientThread.start();
+                    tp.useThread(in, out, clientSocket);
 
                 } catch (Exception e) {
                     System.out.println("Client error:\n" + e.getMessage());

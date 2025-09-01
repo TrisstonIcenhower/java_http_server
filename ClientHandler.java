@@ -40,6 +40,7 @@ public class ClientHandler extends Thread {
 
 	@Override
 	public void run() {
+		System.out.println("Thread is running with client");
 		while (isActive) {
 			String reqString = "";
 			String line;
