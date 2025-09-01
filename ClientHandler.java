@@ -7,6 +7,7 @@ public class ClientHandler extends Thread {
 	private BufferedReader in;
 	private OutputStream out;
 	private Socket soc;
+	private boolean isActive;
 
 	ClientHandler(BufferedReader bufIn, OutputStream outStream, Socket s) {
 		this.in = bufIn;
@@ -14,11 +15,11 @@ public class ClientHandler extends Thread {
 		this.soc = s;
 	}
 
-	ClientHandler(){
-
+	ClientHandler() {
+		System.out.println("Thread Initilized with no parameters. Use assignClient() to run thread");
 	}
 
-	public void assignClient(BufferedReader bufIn, OutputStream outStream, Socket s){
+	public void assignClient(BufferedReader bufIn, OutputStream outStream, Socket s) {
 		this.in = bufIn;
 		this.out = outStream;
 		this.soc = s;
@@ -26,72 +27,85 @@ public class ClientHandler extends Thread {
 		run();
 	}
 
+	public void clear() {
+		this.in = null;
+		this.out = null;
+		this.soc = null;
+	}
+
+	//TODO: once timeout occurs stop service
+	public void stopService() {
+		isActive = false;
+	}
+
 	@Override
 	public void run() {
-		String reqString = "";
-		String line;
-		try {
-			while ((line = in.readLine()) != null && !line.isEmpty()) {
-				reqString += line + "\n";
-			}
-		} catch (IOException e) {
-			System.out.println("Failed to read request:\n" + e.getMessage());
-			e.printStackTrace();
-		}
-
-		byte[] headerBytes;
-		byte[] bodyBytes;
-
-		try {
-			// TODO: Make
-			HTTPRequest httpReq = new HTTPRequest(reqString.split("\n"));
-			String body = FileSender.getFile(httpReq.headers.get("PATH"));
-			String headers;
-			bodyBytes = body.getBytes("UTF-8");
-
-			// temp error handler for 404
-			if (body == "N/A") {
-				headers = "HTTP/1.1 404 File Not Found\r\n" +
-						"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
-						"Connection: close\r\n" +
-						"Server: MyServer v1.0\r\n" +
-						"Content-Length: " + bodyBytes.length + "\r\n" +
-						String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
-						"\r\n";
-			} 
-			else { // TODO: Correct CSS file sending to make it send and use rather than keep in source
-				headers = "HTTP/1.1 200 OK\r\n" +
-						"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
-						"Connection: keep-alive\r\n" +
-						"Server: MyServer v1.0\r\n" +
-						"Content-Length: " + bodyBytes.length + "\r\n" +
-						String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
-						"\r\n";
-			}
-
-			headerBytes = headers.getBytes("UTF-8");
-
-			System.out.println("Attempt to write response.");
+		while (isActive) {
+			String reqString = "";
+			String line;
 			try {
-				out.write(headerBytes);
-				out.write(bodyBytes);
-				out.flush();
+				while ((line = in.readLine()) != null && !line.isEmpty()) {
+					reqString += line + "\n";
+				}
 			} catch (IOException e) {
+				System.out.println("Failed to read request:\n" + e.getMessage());
+				e.printStackTrace();
+			}
+
+			byte[] headerBytes;
+			byte[] bodyBytes;
+
+			try {
+				// TODO: Make
+				HTTPRequest httpReq = new HTTPRequest(reqString.split("\n"));
+				String body = FileSender.getFile(httpReq.headers.get("PATH"));
+				String headers;
+				bodyBytes = body.getBytes("UTF-8");
+
+				// temp error handler for 404
+				if (body == "N/A") {
+					headers = "HTTP/1.1 404 File Not Found\r\n" +
+							"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
+							"Connection: close\r\n" +
+							"Server: MyServer v1.0\r\n" +
+							"Content-Length: " + bodyBytes.length + "\r\n" +
+							String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
+							"\r\n";
+				} else { // TODO: Correct CSS file sending to make it send and use rather than keep in
+							// source
+					headers = "HTTP/1.1 200 OK\r\n" +
+							"Date: " + HelperFunctions.getRfc1123Format() + "\r\n" +
+							"Connection: keep-alive\r\n" +
+							"Server: MyServer v1.0\r\n" +
+							"Content-Length: " + bodyBytes.length + "\r\n" +
+							String.format("Content-Type: %s\r\n", httpReq.headers.get("Content-Type")) +
+							"\r\n";
+				}
+
+				headerBytes = headers.getBytes("UTF-8");
+
+				System.out.println("Attempt to write response.");
+				try {
+					out.write(headerBytes);
+					out.write(bodyBytes);
+					out.flush();
+				} catch (IOException e) {
+					System.out.println(e.getMessage());
+					e.printStackTrace();
+				}
+			} catch (UnsupportedEncodingException e) {
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
-		} catch (UnsupportedEncodingException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
-		System.out.println("Response written successfully.");
+			System.out.println("Response written successfully.");
 
-		try {
-			this.in.close();
-			this.out.close();
+			try {
+				this.in.close();
+				this.out.close();
 
-		} catch (IOException e) {
-			e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
