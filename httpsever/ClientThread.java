@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import helper.ErrorPrinter;
 import helper.DateHelper;
-import helper.HttpRequest;
 
 public class ClientThread {
     private BufferedReader in;

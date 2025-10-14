@@ -1,10 +1,13 @@
 package httpsever;
 import java.net.*;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.io.*;
 
 public class Server {
     private final int PORT;
     private Router router;
+    private Queue<Request> testQueue = new LinkedList<>();
 
     public Server(int newPort){
         PORT = newPort;
