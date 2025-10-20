@@ -1,17 +1,13 @@
 import httpsever.Router;
-import httpsever.Server;
-import httpsever.concurrency.ThreadPool;
+import httpsever.concurrency.ThreadedServer;
 
 public class Main {
     public static void main(String args[]){
-        Server server = new Server(8080);
         Router router = new Router();
-        ThreadPool threadPool = new ThreadPool(10, null, router);
-        threadPool.initialize();
         router.routePath("/", "pages/index.html");
         router.routePath("/about", "pages/about.html");
         router.routeStaticFiles("public");
-        server.setRouter(router);
-        server.run();
+        ThreadedServer threadedServer = new ThreadedServer(8080, 25, 15, router);
+        threadedServer.runServer();
     }
 }

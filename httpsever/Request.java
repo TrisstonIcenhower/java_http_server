@@ -9,7 +9,7 @@ public class Request {
     public OutputStream out;
     public Socket clientSocket;
 
-    Request(BufferedReader buffIn, OutputStream osOut, Socket cSocket){
+    public Request(BufferedReader buffIn, OutputStream osOut, Socket cSocket){
         in = buffIn;
         out = osOut;
         clientSocket = cSocket;
