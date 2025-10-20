@@ -11,6 +11,32 @@
 
 ### Patch Notes
 
+#### Version 2.0.0 - 
+
+This version converts the request response cycle to a more sustainable producer/consumer model. The major changes here involve replacing <code>Server.java</code> with <code>ReceiverThread.java</code> and replacing <code>ClientThread.java</code> with the private class <code>ConsumerThread</code> inside of the <code>ConsumerThreadPool.java</code> class. Rather than the server receiving a connection, spinning up a new thread, and handling the request with a new <code>ClientThread</code>, the <code>ReceiverThread</code> listens for a request, creates a <code>Request</code> object, adds it to a <code>BlockingQueue</code> and an available <code>ConsumerThread</code> will digest the request and create a response from it.
+
+Summary:
+
+What's New?
+<br>1. Server -> ReceiverThread
+<br>2. ClientThread -> ConsumerThreadPool > ConsumerThread
+<br>3. Request object : Request(BufferedReader buffIn, OutputStream osOut, Socket cSocket)
+<br>4. [How it works](#how-it-works) changed to new functionality.
+<br>
+
+What's next?
+<br>This project is very far from being complete, but I have finished the initial things I had set out to accomplish in order to make a somewhat functional threaded http server from scratch. I do not have specific plans on what I will work on next, but I have indicated a few areas of improvement.
+<br>
+<br>1. Error handling on 404 fails on null body.
+<br>2. Request METHOD is not utilitzed and simply returns whatever file is connected to the route.
+<br>3. Threads do not shutdown gracefully. 
+<br>4. Error handling needs work
+<br>
+
+This is just a small list of the current areas I think I could make much better with time. If you have any suggestions feel free to reach out to me at the email in the [Closing Notes](#closing-notes) of this README.
+
+
+
 #### Version 1.0.0 - 770a87a
 
 This version is actually a code refactor from the previous version. It should function standalone, so I am considering this 1.0.0. Features of this version are as follows:
@@ -33,12 +59,11 @@ This makes up the brunt of this update. I figured I would write out a longer exp
 
 ### How it works
 
-1. Create server object: <code>Server server = new Server(int PORT)</code>
-2. Create URL router: <code>Router router = new Router()</code>
-3. Create path route(s): <code>router.routePath(String urlPath, String filePath)</code>
-4. Create static file path: <code>router.routeStaticFiles(String directoryPath)</code>
-5. Assign router to server: <code>server.setRouter(router)</code>
-6. Run server: <code> server.run()</code>
+1. Create URL router: <code>Router router = new Router()</code>
+2. Create path route(s): <code>router.routePath(String urlPath, String filePath)</code>
+3. Create static file path: <code>router.routeStaticFiles(String directoryPath)</code>
+4. Create ThreadedServer object: <code>ThreadedServer threadedServer = new ThreadedServer(int PORT, int RequestQueueSize, int ThreadPoolSize, Router router);</code>
+5. Run the server: <code> threadedServer.runServer()</code>
 
 ### Closing Notes
 
