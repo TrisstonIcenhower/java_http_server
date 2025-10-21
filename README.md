@@ -11,7 +11,7 @@
 
 ### Patch Notes
 
-#### Version 2.0.0 - 
+#### Version 2.0.0 - 1ba84d5
 
 This version converts the request response cycle to a more sustainable producer/consumer model. The major changes here involve replacing <code>Server.java</code> with <code>ReceiverThread.java</code> and replacing <code>ClientThread.java</code> with the private class <code>ConsumerThread</code> inside of the <code>ConsumerThreadPool.java</code> class. Rather than the server receiving a connection, spinning up a new thread, and handling the request with a new <code>ClientThread</code>, the <code>ReceiverThread</code> listens for a request, creates a <code>Request</code> object, adds it to a <code>BlockingQueue</code> and an available <code>ConsumerThread</code> will digest the request and create a response from it.
 
