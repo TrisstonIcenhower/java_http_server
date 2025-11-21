@@ -10,4 +10,9 @@ public class ErrorPrinter {
         System.out.println(e.getMessage());
         System.out.println(e.getStackTrace());
     }
+
+    public static void logError(Throwable e){
+        System.out.println(e.getMessage());
+        System.out.println(e.getStackTrace());
+    }
 }

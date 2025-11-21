@@ -9,10 +9,12 @@ import java.io.InputStream;
 import helper.ErrorPrinter;
 
 public class Router {
-    private HashMap<String, String> routeHashMap = new HashMap<>();
-    private String staticFileDirectory;
+    private static final String defaultErrorString = "<h1>404: File not found.</h1>";
+    private static HashMap<String, String> routeHashMap = new HashMap<>();
+    private static String staticFileDirectory;
+    private static byte[] errorBytes = defaultErrorString.getBytes();
 
-    public Router(){
+    public Router() {
         FileServer.configurePathSeperator();
     }
 
@@ -20,17 +22,35 @@ public class Router {
         routeHashMap.putIfAbsent(urlPath, filePath);
     }
 
-    public void routeStaticFiles(String directoryPath){
-        this.staticFileDirectory = directoryPath;
+    public void routeUndefinedPath(String filePath) {
+        routeHashMap.putIfAbsent("404", filePath);
     }
 
-    public byte[] get(String urlPath, String mimeType){
-        if(mimeType.contains("html")){
-            return FileServer.getFile(routeHashMap.get(urlPath));
+    public void routeStaticFiles(String directoryPath) {
+        staticFileDirectory = directoryPath;
+    }
+
+    public HttpResponse get(String urlPath, String mimeType) {
+        return generateResponse(urlPath, mimeType);
+    }
+
+    private static HttpResponse generateResponse(String urlPath, String mimeType) {
+        HttpResponse res = new HttpResponse();
+        if (mimeType != null && mimeType.contains("html")) {
+            res.setBody(FileServer.getFile(routeHashMap.get(urlPath)));
+        } else {
+            res.setBody(FileServer.getFile(staticFileDirectory + urlPath));
+            ;
+        }
+        if (res.getBody() == errorBytes) {
+            res.setCode("404");
+            res.setMessage("Not found");
         }
         else{
-            return FileServer.getFile(staticFileDirectory + urlPath);
+            res.setCode("200");
+            res.setMessage("OK");
         }
+        return res;
     }
 
     private static class FileServer {
@@ -46,14 +66,13 @@ public class Router {
         }
 
         private static byte[] getFile(String filePath) {
-            if(filePath == null){
-                return null;
+            if (filePath == null) {
+                return get404();
             }
 
-            if(pathSeperator == '\\'){
+            if (pathSeperator == '\\') {
                 filePath.replace('/', '\\');
-            }
-            else{
+            } else {
                 filePath.replace('\\', '/');
             }
 
@@ -76,7 +95,15 @@ public class Router {
                 return fileBytes;
             } catch (FileNotFoundException e) {
                 ErrorPrinter.logError(e);
-                return null;
+                return get404();
+            }
+        }
+
+        private static byte[] get404() {
+            if (routeHashMap.get("404") != null) {
+                return getFile(routeHashMap.get("404"));
+            } else {
+                return errorBytes;
             }
         }
     }

@@ -14,6 +14,7 @@ public class HttpRequest {
 		String[] firstLine = reqHeader[0].split(" ");
 		for (int i = 0; i < firstLine.length; i++) {
 			headers.put("METHOD", firstLine[0]);
+
 			if (!firstLine[1].contains("?")) {
 				headers.put("PATH", firstLine[1]);
 			} else {
