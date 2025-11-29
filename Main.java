@@ -4,6 +4,7 @@ import httpsever.concurrency.ThreadedServer;
 public class Main {
     public static void main(String args[]){
         Router router = new Router();
+        router.setDisplayPostData(false);
         router.routePath("/", "pages/index.html");
         router.routePath("/about", "pages/about.html");
         router.routeStaticFiles("public");

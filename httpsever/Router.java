@@ -1,6 +1,7 @@
 package httpsever;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,13 +14,22 @@ public class Router {
     private static HashMap<String, String> routeHashMap = new HashMap<>();
     private static String staticFileDirectory;
     private static byte[] errorBytes = defaultErrorString.getBytes();
+    private static boolean displayPostData = false;
 
     public Router() {
         FileServer.configurePathSeperator();
     }
 
+    public void setDisplayPostData(boolean displayData) {
+        displayPostData = displayData;
+    }
+
     public void routePath(String urlPath, String filePath) {
         routeHashMap.putIfAbsent(urlPath, filePath);
+    }
+
+    public void routeStatusCode(String statusCode, String filePath) {
+        routeHashMap.putIfAbsent(statusCode, filePath);
     }
 
     public void routeUndefinedPath(String filePath) {
@@ -34,6 +44,28 @@ public class Router {
         return generateResponse(urlPath, mimeType);
     }
 
+    public HttpResponse post(Hashtable<String, String> bodyArgs, String urlPath) {
+        try {
+            HttpResponse temp = new HttpResponse();
+            String str = "<h1>POST Data Received:</h1><ul>";
+            for (String arg : bodyArgs.keySet()) {
+                str += "<li>" + arg + ": " + bodyArgs.get(arg) + "</li>";
+            }
+            str += "</ul>";
+            temp.setCode(displayPostData == true ? "200" : "303");
+            temp.setMessage(displayPostData == true ? "OK" : "Redirect to self");
+            temp.setBody(displayPostData == true ? str.getBytes() : get(urlPath, "text/html").getBody());
+            return temp;
+        } catch (Exception e) {
+            ErrorPrinter.logError(e);
+            HttpResponse errorRes = new HttpResponse();
+            errorRes.setCode("500");
+            errorRes.setMessage("Internal Server Error");
+            errorRes.setBody("<h1>500: Internal Server Error.</h1>".getBytes());
+            return errorRes;
+        }
+    }
+
     private static HttpResponse generateResponse(String urlPath, String mimeType) {
         HttpResponse res = new HttpResponse();
         if (mimeType != null && mimeType.contains("html")) {
@@ -45,8 +77,7 @@ public class Router {
         if (res.getBody() == errorBytes) {
             res.setCode("404");
             res.setMessage("Not found");
-        }
-        else{
+        } else {
             res.setCode("200");
             res.setMessage("OK");
         }

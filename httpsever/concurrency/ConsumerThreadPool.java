@@ -1,6 +1,7 @@
 package httpsever.concurrency;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.BlockingQueue;
 
@@ -61,59 +62,161 @@ public class ConsumerThreadPool {
             if (!shutdown) {
                 String reqString = "";
                 String line;
+                String reqType;
+                String[] bodyLine = new String[0];
+
                 try {
                     clientRequest.clientSocket.setSoTimeout(SOCKET_TIMEOUT);
-                    while ((line = clientRequest.in.readLine()) != null && !line.isEmpty() && !shutdown) {
-                        reqString += line + "\n";
-                    }
+                    line = clientRequest.in.readLine();
+                    reqString += line + "\n";
 
-                    byte[] headerBytes;
-                    try {
-                        HttpRequest httpReq = new HttpRequest(reqString.split("\n"));
-                        String acceptType = httpReq.headers.getOrDefault("Accept", "text/plain");
-                        String contentType = httpReq.headers.getOrDefault("Content-Type", "text/plain");
-                        HttpResponse res = router.get(httpReq.headers.get("PATH"), acceptType);
-                        System.out.println(reqString);
-                        System.out.println(httpReq.parameters.get("test"));
-                        String headers;
-                        if (res.getStatus().equals("404")) {
-                            headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
-                                    "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
-                                    "Connection: close\r\n" +
-                                    "Server: MyServer v1.0\r\n" +
-                                    "Content-Length: " + res.getBody().length + "\r\n" +
-                                    String.format("Content-Type: %s\r\n", contentType) +
-                                    "\r\n";
-                        } else {
-                            headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
-                                    "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
-                                    "Connection: " + httpReq.headers.get("Connection") + "\r\n" +
-                                    "Server: MyServer v1.0\r\n" +
-                                    "Content-Length: " + res.getBody().length + "\r\n" +
-                                    String.format("Content-Type: %s\r\n", acceptType) +
-                                    "\r\n";
+                    if (line.contains("POST")) {
+                        reqType = "POST";
+                        Integer contentLength = 0;
+                        char[] contentBuffer;
+
+                        while ((line = clientRequest.in.readLine()) != null && !line.isEmpty() && !shutdown) {
+                            reqString += line + "\n";
+                            if (line.startsWith("Content-Length:")) {
+                                String[] parts = line.split(" ");
+                                contentLength = Integer.parseInt(parts[1]);
+                            }
                         }
 
-                        headerBytes = headers.getBytes("UTF-8");
+                        contentBuffer = new char[contentLength];
+                        clientRequest.in.read(contentBuffer, 0, contentLength);
+                        String bodyString = new String(contentBuffer);
+                        bodyLine = bodyString.split("&");
 
-                        System.out.println("Attempt to write response.");
-                        try {
-                            clientRequest.out.write(headerBytes);
-                            clientRequest.out.write(res.getBody());
-                            clientRequest.out.flush();
-                            reqString = null;
-                        } catch (IOException e) {
-                            ErrorPrinter.logError(e);
+                    } else {
+                        reqType = "GET";
+                        while ((line = clientRequest.in.readLine()) != null && !line.isEmpty() && !shutdown) {
+                            reqString += line + "\n";
                         }
-                    } catch (UnsupportedEncodingException e) {
-                        ErrorPrinter.logError(e);
-                    } finally {
-                        System.out.println("Response written successfully.");
-
-                        clientRequest.in.close();
-                        clientRequest.out.close();
-                        clientRequest.clientSocket.close();
                     }
+
+                    HttpRequest httpReq = new HttpRequest(reqString.split("\n"), reqType, bodyLine);
+                    String acceptType = httpReq.headers.getOrDefault("Accept", "text/plain");
+                    String contentType = httpReq.headers.getOrDefault("Content-Type", "text/plain");
+
+                    if (reqType.equals("GET")) {
+                        handleGet(httpReq, acceptType, contentType, clientRequest, reqString);
+                    } else {
+                        handlePost(httpReq, acceptType, contentType, clientRequest, reqString);
+                    }
+                } catch (IOException e) {
+                    ErrorPrinter.logError(e);
+                }
+            }
+        }
+
+        private void writeResponse(OutputStream out, byte[] headerBytes, byte[] bodyBytes) throws IOException {
+            try {
+                out.write(headerBytes);
+                out.write(bodyBytes);
+                out.flush();
+            } catch (IOException e) {
+                ErrorPrinter.logError(e);
+            }
+        }
+
+        private void closeSocket(Request clientRequest) throws IOException {
+            clientRequest.in.close();
+            clientRequest.out.close();
+            clientRequest.clientSocket.close();
+        }
+
+        private void handleGet(HttpRequest req, String acceptType, String contentType,
+                Request clientRequest, String reqString) {
+            HttpResponse res;
+            byte[] headerBytes;
+            String headers;
+            try {
+                System.out.println("Processing GET request.");
+
+                res = router.get(req.headers.get("PATH"), acceptType);
+                if (res.getStatus().equals("404")) {
+                    headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
+                            "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
+                            "Connection: close\r\n" +
+                            "Server: MyServer v1.0\r\n" +
+                            "Content-Length: " + res.getBody().length + "\r\n" +
+                            String.format("Content-Type: %s\r\n", contentType) +
+                            "\r\n";
+                } else {
+                    headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
+                            "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
+                            "Connection: " + req.headers.get("Connection") + "\r\n" +
+                            "Server: MyServer v1.0\r\n" +
+                            "Content-Length: " + res.getBody().length + "\r\n" +
+                            String.format("Content-Type: %s\r\n", acceptType) +
+                            "\r\n";
+                }
+
+                headerBytes = headers.getBytes("UTF-8");
+
+                System.out.println("Attempt to write response.");
+                try {
+                    writeResponse(clientRequest.out, headerBytes, res.getBody());
+                    reqString = null;
+                } catch (IOException e) {
+                    ErrorPrinter.logError(e);
+                }
+            } catch (UnsupportedEncodingException e) {
+                ErrorPrinter.logError(e);
+            } finally {
+
+                try {
+                    closeSocket(clientRequest);
+                    System.out.println("Response written successfully.");
+                } catch (IOException e) {
+                    ErrorPrinter.logError(e);
+                }
+            }
+        }
+
+        private void handlePost(HttpRequest req, String acceptType, String contentType,
+                Request clientRequest, String reqString) {
+            HttpResponse res;
+            byte[] headerBytes;
+            String headers;
+            try {
+                System.out.println("Processing POST request.");
+                res = router.post(req.body, req.headers.get("PATH"));
+                if (res.getStatus().equals("500")) {
+                    headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
+                            "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
+                            "Connection: close\r\n" +
+                            "Server: MyServer v1.0\r\n" +
+                            "Content-Length: " + res.getBody().length + "\r\n" +
+                            String.format("Content-Type: %s\r\n", contentType) +
+                            "\r\n";
+                } else {
+                    headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
+                            "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
+                            "Connection: " + req.headers.get("Connection") + "\r\n" +
+                            "Server: MyServer v1.0\r\n" +
+                            "Content-Length: " + res.getBody().length + "\r\n" +
+                            String.format("Content-Type: %s\r\n", acceptType) +
+                            "\r\n";
+                }
+
+                headerBytes = headers.getBytes("UTF-8");
+
+                System.out.println("Attempt to write response.");
+                try {
+                    writeResponse(clientRequest.out, headerBytes, res.getBody());
+                    reqString = null;
+                } catch (IOException e) {
+                    ErrorPrinter.logError(e);
+                }
+            } catch (UnsupportedEncodingException e) {
+                ErrorPrinter.logError(e);
+            } finally {
+
+                try {
+                    closeSocket(clientRequest);
+                    System.out.println("Response written successfully.");
                 } catch (IOException e) {
                     ErrorPrinter.logError(e);
                 }
