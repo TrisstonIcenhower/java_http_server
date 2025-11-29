@@ -11,6 +11,18 @@
 
 ### Patch Notes
 
+#### Version 3.0.0 FINAL -
+
+This version is the final update to the project. This has been a great learning experience, but ultimately I believe I have learned everything that I set out to learn. This version has an updated error handler via the <code>routeStatusCode</code> function. I have not tested this particular function very much, so it may not work as intended. I also added a <code>routeUndefinedPath</code> to the router for handling 404 error with a custom page, or by defaulting to a generic 404 response. There is also the new <code>HttpResponse</code> class for handling responses. It contains <code>status</code>, <code>message</code>, and <code>body</code> variables for responding to requests in a more consistent way. I also added a <code>shutdown</code> flag to the thread pool. It is utilized by calling the <code>stopServer</code> function which will close both the thread pool and the requestListener. Final change is that the <code>consumer</code> threads now continue running on throwable rather than just dying. 
+
+Summary: 
+
+1. Router: routeStatusCode, routeUndefinedPath
+2. HttpResponse object
+3. ConsumerThreadPool: shutdown flag
+4. ThreadedServer: stopServer
+5. Thread consumer -> continues operating on throwable
+
 #### Version 2.0.0 - 1ba84d5
 
 This version converts the request response cycle to a more sustainable producer/consumer model. The major changes here involve replacing <code>Server.java</code> with <code>ReceiverThread.java</code> and replacing <code>ClientThread.java</code> with the private class <code>ConsumerThread</code> inside of the <code>ConsumerThreadPool.java</code> class. Rather than the server receiving a connection, spinning up a new thread, and handling the request with a new <code>ClientThread</code>, the <code>ReceiverThread</code> listens for a request, creates a <code>Request</code> object, adds it to a <code>BlockingQueue</code> and an available <code>ConsumerThread</code> will digest the request and create a response from it.

@@ -139,7 +139,7 @@ public class ConsumerThreadPool {
                     headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
                             "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
                             "Connection: close\r\n" +
-                            "Server: MyServer v1.0\r\n" +
+                            "Server: MyServer v3.0\r\n" +
                             "Content-Length: " + res.getBody().length + "\r\n" +
                             String.format("Content-Type: %s\r\n", contentType) +
                             "\r\n";
@@ -147,7 +147,7 @@ public class ConsumerThreadPool {
                     headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
                             "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
                             "Connection: " + req.headers.get("Connection") + "\r\n" +
-                            "Server: MyServer v1.0\r\n" +
+                            "Server: MyServer v3.0\r\n" +
                             "Content-Length: " + res.getBody().length + "\r\n" +
                             String.format("Content-Type: %s\r\n", acceptType) +
                             "\r\n";
@@ -187,7 +187,7 @@ public class ConsumerThreadPool {
                     headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
                             "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
                             "Connection: close\r\n" +
-                            "Server: MyServer v1.0\r\n" +
+                            "Server: MyServer v3.0\r\n" +
                             "Content-Length: " + res.getBody().length + "\r\n" +
                             String.format("Content-Type: %s\r\n", contentType) +
                             "\r\n";
@@ -195,7 +195,7 @@ public class ConsumerThreadPool {
                     headers = "HTTP/1.1 " + res.getMessage() + "\r\n" +
                             "Date: " + DateHelper.getRfc1123Format() + "\r\n" +
                             "Connection: " + req.headers.get("Connection") + "\r\n" +
-                            "Server: MyServer v1.0\r\n" +
+                            "Server: MyServer v3.0\r\n" +
                             "Content-Length: " + res.getBody().length + "\r\n" +
                             String.format("Content-Type: %s\r\n", acceptType) +
                             "\r\n";

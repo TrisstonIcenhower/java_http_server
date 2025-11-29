@@ -1,3 +1,78 @@
+:root {
+  --prussian-blue: #0a2342ff;
+  --background-color: #222730ff;
+  --text-color: #fffdf7ff;
+  --glass-morphism-bg: hsla(45, 100%, 98%, 0.6);
+  --crayola-blue: #3772ffff;
+}
+
+html {
+  background-color: var(--background-color);
+}
+
 * {
-    background-color: lightblue;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+header,
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  background-image: url("code_background.jpg");
+  background-size: cover;
+  background-position: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+header > h1,
+header > nav {
+  background-color: var(--glass-morphism-bg);
+  backdrop-filter: blur(5px);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+header > h1,
+a {
+    text-shadow:
+                0 0 5px var(--prussian-blue),
+                0 0 10px var(--crayola-blue),
+                0 0 20px var(--crayola-blue),
+                0 0 40px var(--crayola-blue),
+                0 0 80px var(--crayola-blue);
+    }
+
+a:hover {
+    text-shadow:
+                0 0 5px var(--crayola-blue),
+                0 0 10px var(--prussian-blue),
+                0 0 20px var(--prussian-blue),
+                0 0 40px var(--prussian-blue),
+                0 0 80px var(--prussian-blue);
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+li {
+    margin-top: 16px;
+}
+
+main {
+  margin-top: 24px;
+  margin-left: 10%;
+  margin-right: 10%;
+  gap: 16px;
+}
+
+p {
+  width: 50%;
 }

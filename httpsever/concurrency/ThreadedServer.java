@@ -36,4 +36,9 @@ public class ThreadedServer {
     private void startConsumerPool(){
         cThreadPool.initializePool();
     }
+
+    public void stopServer(){
+        cThreadPool.shutdownPool();
+        requestListener.interrupt();
+    }
 } 

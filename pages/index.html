@@ -1,25 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
-    <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" href="style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Server v3.0</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="style.css" />
     <script src="test.js"></script>
-</head>
-<body>
-    <h1>Hello Index</h1>
-    <img src="medieval_knight.png" alt="knight">
-    <form method="post">
-        <input type="text" name="text" id="text">
-        <input type="number" name="number" id="number">
-        <button type="submit">Submit</button>
-    </form>
-    <a href="#test">To test</a>
-    <a href="/about">To about</a>
-    <div id="test" style="margin-top: 100vh;">
-        Test
-    </div>
-</body>
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to Web Server v3.0!</h1>
+      <nav>
+        <a href="/about">About</a>
+      </nav>
+    </header>
+    <main>
+      <h2>Introduction</h2>
+      <p>
+        This webserver is a very basic implementation of an HTTP server written
+        in Java. It was an attempt to make a simple, working, webserver without
+        using any of the existing HTTP functionality.
+      </p>
+
+      <h2>Purpose of the Project</h2>
+      <p>
+        The purpose of this project is to dive deep and obtain a better
+        understanding of the request response cycle in the HTTP protocol. It all
+        started when I was teaching myself a bit more about the underlying
+        functionality of frameworks like
+        <a
+          href="https://expressjs.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Express.js</a
+        >
+        and
+        <a
+          href="https://spring.io/projects/spring-boot"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Spring Boot</a
+        >. I've read about how "http sits on top of TCP", but I never could
+        really understand what that meant in practice. That's when I decided to
+        work on this project to better understand all of this. This project has
+        been a ton of fun and a great learning opportunity. I hope you enjoy the
+        project! To see my other work check out my
+        <a href="/about">about page</a> to learn more about me and what I do!
+        Thanks for checking it out, and feel free to use this template to make
+        your own server with my project. Happy coding!
+      </p>
+
+      <h2>Features</h2>
+        <ul>
+            <li>Handles GET and POST requests</li>
+            <li>Serves static files (HTML, CSS, JS, images, etc.)</li>
+            <li>Custom routing for different paths</li>
+            <li>404 and 500 error handling with custom pages</li>
+            <li>Multi-threaded request handling for concurrency</li>
+        </ul>
+    </main>
+  </body>
 </html>
