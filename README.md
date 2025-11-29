@@ -11,7 +11,7 @@
 
 ### Patch Notes
 
-#### Version 3.0.0 FINAL -
+#### Version 3.0.0 FINAL - 6895963
 
 This version is the final update to the project. This has been a great learning experience, but ultimately I believe I have learned everything that I set out to learn. This version has an updated error handler via the <code>routeStatusCode</code> function. I have not tested this particular function very much, so it may not work as intended. I also added a <code>routeUndefinedPath</code> to the router for handling 404 error with a custom page, or by defaulting to a generic 404 response. There is also the new <code>HttpResponse</code> class for handling responses. It contains <code>status</code>, <code>message</code>, and <code>body</code> variables for responding to requests in a more consistent way. I also added a <code>shutdown</code> flag to the thread pool. It is utilized by calling the <code>stopServer</code> function which will close both the thread pool and the requestListener. Final change is that the <code>consumer</code> threads now continue running on throwable rather than just dying. 
 
